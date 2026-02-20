@@ -25,7 +25,7 @@ function EmptyState({ tab }: { tab: "active" | "completed" }) {
                 {tab === "active" ? "✦" : "◈"}
             </div>
             <p
-                className="text-xl text-gray-700 mb-1 font-serif"
+                className="text-xl text-gray-700 mb-1 font-medium"
             >
                 {tab === "active" ? "No active tasks" : "Nothing completed yet"}
             </p>
@@ -46,11 +46,15 @@ export default function TasksPage() {
     const [editTask, setEditTask] = useState<Task | null>(null);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
+    const [authChecked, setAuthChecked] = useState(false);
 
     // Auth check
     useEffect(() => {
-        if (!localStorage.getItem("token")) {
+        const token = localStorage.getItem("token");
+        if (!token) {
             router.push("/login");
+        } else {
+            setAuthChecked(true);
         }
     }, [router]);
 
@@ -176,6 +180,7 @@ export default function TasksPage() {
     };
 
     return (
+            authChecked ? (
             <div className="flex min-h-screen bg-[#f8fafd]">
                 {/* SIDEBAR */}
                 <Sidebar tasks={tasks} />
@@ -195,7 +200,7 @@ export default function TasksPage() {
                             {/* Date */}
                             <button className="flex items-center gap-1.5 text-gray-700 hover:text-gray-900 transition">
                                 <span
-                                    className="text-base font-serif"
+                                    className="text-base font-medium"
                                 >
                                     {new Date().toLocaleDateString("en-US", {
                                         day: "numeric",

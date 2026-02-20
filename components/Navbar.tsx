@@ -30,7 +30,7 @@ export default function Navbar() {
             {/* Left — Greeting */}
             <div>
                 <p
-                    className="text-base text-gray-800 font-serif"
+                    className="text-sm text-gray-600"
                 >
                     Hello, <span className="font-semibold">{userName}</span> 👋
                 </p>

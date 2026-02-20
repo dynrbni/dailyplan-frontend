@@ -24,13 +24,15 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
-
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const [authChecked, setAuthChecked] = useState(false);
 
   // Auth check
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
+    const token = localStorage.getItem("token");
+    if (!token) {
       router.push("/login");
+    } else {
+      setAuthChecked(true);
     }
   }, [router]);
 
@@ -207,6 +209,7 @@ export default function Home() {
   ];
 
   return (
+      authChecked ? (
       <div className="flex min-h-screen bg-[#f8fafd]">
         {/* SIDEBAR */}
         <Sidebar tasks={tasks} />
@@ -225,7 +228,7 @@ export default function Home() {
                   Overview
                 </p>
                 <h2
-                  className="text-2xl tracking-tight text-gray-900 leading-tight font-serif"
+                  className="text-2xl tracking-tight text-gray-900 leading-tight font-semibold"
                 >
                   Dashboard
                 </h2>
@@ -294,7 +297,7 @@ export default function Home() {
                     Recent Activity
                   </p>
                   <h3
-                    className="text-lg text-gray-800 font-serif"
+                    className="text-lg text-gray-800 font-semibold"
                   >
                     Your Tasks
                   </h3>
@@ -317,7 +320,7 @@ export default function Home() {
                     ✦
                   </div>
                   <p
-                    className="text-xl text-gray-700 mb-1 font-serif"
+                    className="text-xl text-gray-700 mb-1 font-medium"
                   >
                     No tasks yet
                   </p>
@@ -353,5 +356,10 @@ export default function Home() {
           editTask={editTask}
         />
       </div>
+      ) : (
+        <div className="flex min-h-screen items-center justify-center bg-[#f8fafd]">
+          <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
+      )
   );
 }

@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { DM_Sans, Instrument_Serif } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${dmSans.variable} ${instrumentSerif.variable} antialiased`}
+        className={`${inter.variable} antialiased`}
       >
         {children}
       </body>
