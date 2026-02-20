@@ -23,6 +23,7 @@ export default function ProfilePage() {
     });
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
+    const [authChecked, setAuthChecked] = useState(false);
 
     const [saved, setSaved] = useState(false);
     const [saveError, setSaveError] = useState("");
@@ -36,6 +37,7 @@ export default function ProfilePage() {
             router.push("/login");
             return;
         }
+        setAuthChecked(true);
 
         // Load user from localStorage first (set by login)
         const storedUser = localStorage.getItem("user");
@@ -163,6 +165,7 @@ export default function ProfilePage() {
     ];
 
     return (
+        authChecked ? (
         <div className="flex min-h-screen bg-[#f8fafd]">
             {/* SIDEBAR */}
             <Sidebar tasks={tasks} />
@@ -363,6 +366,11 @@ export default function ProfilePage() {
                 </main>
             </div>
         </div>
+        ) : (
+            <div className="flex min-h-screen items-center justify-center bg-[#f8fafd]">
+                <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+            </div>
+        )
     );
 }
 
