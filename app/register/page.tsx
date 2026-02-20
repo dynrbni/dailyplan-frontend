@@ -2,7 +2,7 @@
 import React, { useState, FC, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "https://api.dynrbni.biz.id";
 
 interface RegisterForm {
   firstName: string;

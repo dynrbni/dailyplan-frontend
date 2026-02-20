@@ -7,7 +7,7 @@ import TaskModal from "@/components/TaskModal";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "https://api.dynrbni.biz.id";
 
 type Task = {
     id: string;
