@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 
-const API = "http://localhost:8080/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 type Task = {
     id: string;
@@ -61,7 +61,7 @@ export default function ProfilePage() {
                                 setTempForm({ name: user.name, email: user.email });
                             }
                         })
-                        .catch(() => {});
+                        .catch(() => { });
                 }
             } catch {
                 // ignore parse errors
@@ -77,7 +77,7 @@ export default function ProfilePage() {
                 const list = Array.isArray(data) ? data : data?.data || [];
                 setTasks(list);
             })
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => setLoading(false));
     }, [router]);
 
@@ -166,206 +166,206 @@ export default function ProfilePage() {
 
     return (
         authChecked ? (
-        <div className="flex min-h-screen bg-[#f8fafd]">
-            {/* SIDEBAR */}
-            <Sidebar tasks={tasks} />
+            <div className="flex min-h-screen bg-[#f8fafd]">
+                {/* SIDEBAR */}
+                <Sidebar tasks={tasks} />
 
-            {/* MAIN */}
-            <div className="flex flex-col flex-1 min-w-0">
-                {/* NAVBAR */}
-                <Navbar />
+                {/* MAIN */}
+                <div className="flex flex-col flex-1 min-w-0">
+                    {/* NAVBAR */}
+                    <Navbar />
 
-                {/* CONTENT */}
-                <main className="flex-1 px-8 py-7">
+                    {/* CONTENT */}
+                    <main className="flex-1 px-8 py-7">
 
-                    {/* PAGE HEADER */}
-                    <div className="flex items-start justify-between mb-6">
-                        <div>
-                            <p className="text-[10px] uppercase tracking-[0.12em] text-blue-500 font-medium mb-0.5">
-                                Account
-                            </p>
-                            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 leading-tight">
-                                My Profile
-                            </h2>
-                            <p className="text-xs text-gray-400 mt-0.5">
-                                Manage your personal information
-                            </p>
-                        </div>
+                        {/* PAGE HEADER */}
+                        <div className="flex items-start justify-between mb-6">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.12em] text-blue-500 font-medium mb-0.5">
+                                    Account
+                                </p>
+                                <h2 className="text-2xl font-semibold tracking-tight text-gray-900 leading-tight">
+                                    My Profile
+                                </h2>
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                    Manage your personal information
+                                </p>
+                            </div>
 
-                        <div className="flex items-center gap-2">
-                            {editing ? (
-                                <>
+                            <div className="flex items-center gap-2">
+                                {editing ? (
+                                    <>
+                                        <button
+                                            onClick={handleCancel}
+                                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleSave}
+                                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-blue-400 shadow-sm hover:opacity-90 transition-opacity"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Save Changes
+                                        </button>
+                                    </>
+                                ) : (
                                     <button
-                                        onClick={handleCancel}
-                                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleSave}
-                                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-blue-400 shadow-sm hover:opacity-90 transition-opacity"
+                                        onClick={handleEdit}
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium text-gray-600 border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
-                                        Save Changes
+                                        Edit Profile
                                     </button>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={handleEdit}
-                                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium text-gray-600 border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                    Edit Profile
-                                </button>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
 
-                    {/* TOAST */}
-                    {saved && (
-                        <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl bg-green-50 border border-green-200 text-green-700 text-xs animate-[fadeUp_0.3s_ease]">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Profile saved successfully!
-                        </div>
-                    )}
-                    {saveError && (
-                        <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
-                            {saveError}
-                        </div>
-                    )}
+                        {/* TOAST */}
+                        {saved && (
+                            <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl bg-green-50 border border-green-200 text-green-700 text-xs animate-[fadeUp_0.3s_ease]">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Profile saved successfully!
+                            </div>
+                        )}
+                        {saveError && (
+                            <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+                                {saveError}
+                            </div>
+                        )}
 
-                    {/* GRID */}
-                    <div className="grid grid-cols-[220px_1fr] gap-5 items-start">
+                        {/* GRID */}
+                        <div className="grid grid-cols-[220px_1fr] gap-5 items-start">
 
-                        {/* ─── LEFT COLUMN ─── */}
-                        <div className="flex flex-col gap-4">
+                            {/* ─── LEFT COLUMN ─── */}
+                            <div className="flex flex-col gap-4">
 
-                            {/* Profile Card */}
-                            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                                {/* Cover */}
-                                <div className="h-20 bg-gradient-to-br from-blue-600 via-blue-400 to-indigo-400 relative">
-                                    <div className="absolute inset-0 opacity-20"
-                                        style={{ backgroundImage: "radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
-                                    />
-                                </div>
-
-                                {/* Avatar + Info */}
-                                <div className="flex flex-col items-center -mt-7 pb-5 px-4">
-                                    <div className="relative">
-                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-xl font-semibold border-[3px] border-white shadow-md">
-                                            {form.name.charAt(0).toUpperCase()}
-                                        </div>
-                                        <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white" />
+                                {/* Profile Card */}
+                                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                                    {/* Cover */}
+                                    <div className="h-20 bg-gradient-to-br from-blue-600 via-blue-400 to-indigo-400 relative">
+                                        <div className="absolute inset-0 opacity-20"
+                                            style={{ backgroundImage: "radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
+                                        />
                                     </div>
 
-                                    <p className="mt-2.5 text-sm font-semibold text-gray-800 tracking-tight">{form.name || "—"}</p>
-                                    <p className="text-[11px] text-gray-400 mt-0.5">{form.email}</p>
-                                </div>
-                            </div>
-
-                            {/* Activity Card */}
-                            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                                <div className="px-4 py-3 border-b border-gray-50">
-                                    <p className="text-[10px] uppercase tracking-[0.12em] text-gray-400 font-medium">Activity</p>
-                                </div>
-                                <div className="divide-y divide-gray-50">
-                                    {stats.map(({ label, value, textColor, bgColor }) => (
-                                        <div key={label} className="flex items-center justify-between px-4 py-2.5">
-                                            <span className="text-xs text-gray-500">{label}</span>
-                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-lg ${textColor} ${bgColor}`}>
-                                                {value}
-                                            </span>
+                                    {/* Avatar + Info */}
+                                    <div className="flex flex-col items-center -mt-7 pb-5 px-4">
+                                        <div className="relative">
+                                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-xl font-semibold border-[3px] border-white shadow-md">
+                                                {form.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white" />
                                         </div>
-                                    ))}
+
+                                        <p className="mt-2.5 text-sm font-semibold text-gray-800 tracking-tight">{form.name || "—"}</p>
+                                        <p className="text-[11px] text-gray-400 mt-0.5">{form.email}</p>
+                                    </div>
+                                </div>
+
+                                {/* Activity Card */}
+                                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-gray-50">
+                                        <p className="text-[10px] uppercase tracking-[0.12em] text-gray-400 font-medium">Activity</p>
+                                    </div>
+                                    <div className="divide-y divide-gray-50">
+                                        {stats.map(({ label, value, textColor, bgColor }) => (
+                                            <div key={label} className="flex items-center justify-between px-4 py-2.5">
+                                                <span className="text-xs text-gray-500">{label}</span>
+                                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-lg ${textColor} ${bgColor}`}>
+                                                    {value}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Danger Zone */}
+                                <div className="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-red-50">
+                                        <p className="text-[10px] uppercase tracking-[0.12em] text-red-400 font-medium">Danger Zone</p>
+                                    </div>
+                                    <div className="p-3">
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-red-200 text-red-400 text-xs hover:bg-red-50 transition-colors"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            </svg>
+                                            Logout
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Danger Zone */}
-                            <div className="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden">
-                                <div className="px-4 py-3 border-b border-red-50">
-                                    <p className="text-[10px] uppercase tracking-[0.12em] text-red-400 font-medium">Danger Zone</p>
-                                </div>
-                                <div className="p-3">
-                                    <button
-                                        onClick={handleLogout}
-                                        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-red-200 text-red-400 text-xs hover:bg-red-50 transition-colors"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                        </svg>
-                                        Logout
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                            {/* ─── RIGHT COLUMN ─── */}
+                            <div className="flex flex-col gap-4">
 
-                        {/* ─── RIGHT COLUMN ─── */}
-                        <div className="flex flex-col gap-4">
-
-                            {/* Personal Info */}
-                            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
-                                    <p className="text-[10px] uppercase tracking-[0.12em] text-gray-400 font-medium">Personal Information</p>
-                                    {editing && (
-                                        <span className="text-[10px] text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">
-                                            Editing
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="p-6 grid grid-cols-2 gap-4">
-                                    {fields.map(({ label, key, type, icon }) => (
-                                        <div key={key} className="flex flex-col gap-1.5">
-                                            <label className="text-[10px] uppercase tracking-[0.1em] text-gray-400 font-medium">
-                                                {label}
-                                            </label>
-                                            <div className="relative flex items-center">
-                                                <span className="absolute left-3 pointer-events-none">{icon}</span>
-                                                <input
-                                                    type={type}
-                                                    value={editing ? tempForm[key as keyof typeof tempForm] : form[key as keyof typeof form]}
-                                                    disabled={!editing}
-                                                    onChange={(e) => setTempForm({ ...tempForm, [key]: e.target.value })}
-                                                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl text-xs transition-all duration-150 outline-none ${editing
+                                {/* Personal Info */}
+                                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
+                                        <p className="text-[10px] uppercase tracking-[0.12em] text-gray-400 font-medium">Personal Information</p>
+                                        {editing && (
+                                            <span className="text-[10px] text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">
+                                                Editing
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="p-6 grid grid-cols-2 gap-4">
+                                        {fields.map(({ label, key, type, icon }) => (
+                                            <div key={key} className="flex flex-col gap-1.5">
+                                                <label className="text-[10px] uppercase tracking-[0.1em] text-gray-400 font-medium">
+                                                    {label}
+                                                </label>
+                                                <div className="relative flex items-center">
+                                                    <span className="absolute left-3 pointer-events-none">{icon}</span>
+                                                    <input
+                                                        type={type}
+                                                        value={editing ? tempForm[key as keyof typeof tempForm] : form[key as keyof typeof form]}
+                                                        disabled={!editing}
+                                                        onChange={(e) => setTempForm({ ...tempForm, [key]: e.target.value })}
+                                                        className={`w-full pl-9 pr-4 py-2.5 rounded-xl text-xs transition-all duration-150 outline-none ${editing
                                                             ? "border border-blue-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-gray-800"
                                                             : "border border-transparent bg-gray-50 text-gray-600 cursor-default"
-                                                        }`}
-                                                />
+                                                            }`}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Preferences */}
-                            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                                <div className="px-6 py-4 border-b border-gray-50">
-                                    <p className="text-[10px] uppercase tracking-[0.12em] text-gray-400 font-medium">Preferences</p>
+                                {/* Preferences */}
+                                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                                    <div className="px-6 py-4 border-b border-gray-50">
+                                        <p className="text-[10px] uppercase tracking-[0.12em] text-gray-400 font-medium">Preferences</p>
+                                    </div>
+                                    <div className="px-6 py-4 flex flex-col gap-4">
+                                        <PreferenceToggle
+                                            label="Email Notifications"
+                                            hint="Receive daily summaries and reminders"
+                                            defaultOn={true}
+                                        />
+                                        <PreferenceToggle
+                                            label="Weekly Report"
+                                            hint="Get a weekly progress digest every Sunday"
+                                            defaultOn={false}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="px-6 py-4 flex flex-col gap-4">
-                                    <PreferenceToggle
-                                        label="Email Notifications"
-                                        hint="Receive daily summaries and reminders"
-                                        defaultOn={true}
-                                    />
-                                    <PreferenceToggle
-                                        label="Weekly Report"
-                                        hint="Get a weekly progress digest every Sunday"
-                                        defaultOn={false}
-                                    />
-                                </div>
-                            </div>
 
+                            </div>
                         </div>
-                    </div>
-                </main>
+                    </main>
+                </div>
             </div>
-        </div>
         ) : (
             <div className="flex min-h-screen items-center justify-center bg-[#f8fafd]">
                 <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />

@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import TaskCard from "@/components/TaskCard";
 import TaskModal from "@/components/TaskModal";
 
-const API = "http://localhost:8080/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 type Task = {
   id: string;
@@ -209,7 +209,7 @@ export default function Home() {
   ];
 
   return (
-      authChecked ? (
+    authChecked ? (
       <div className="flex min-h-screen bg-[#f8fafd]">
         {/* SIDEBAR */}
         <Sidebar tasks={tasks} />
@@ -356,10 +356,10 @@ export default function Home() {
           editTask={editTask}
         />
       </div>
-      ) : (
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafd]">
-          <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-        </div>
-      )
+    ) : (
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafd]">
+        <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+      </div>
+    )
   );
 }

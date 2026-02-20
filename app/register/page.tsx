@@ -2,7 +2,7 @@
 import React, { useState, FC, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 
-const API = "http://localhost:8080/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 interface RegisterForm {
   firstName: string;
@@ -83,7 +83,7 @@ export default function RegisterPage() {
       } else {
         // Handle error message - convert object to string if needed
         let errorMsg = "Registration failed. Please try again.";
-        
+
         if (typeof data.message === "string") {
           errorMsg = data.message;
         } else if (typeof data.message === "object") {
@@ -99,7 +99,7 @@ export default function RegisterPage() {
             errorMsg = errors || errorMsg;
           }
         }
-        
+
         setError(errorMsg);
       }
     } catch (err) {
@@ -200,12 +200,12 @@ export default function RegisterPage() {
                   <div
                     key={i}
                     className={`flex-1 h-1.5 rounded-full ${strength >= i
-                        ? strength === 1
-                          ? "bg-red-600"
-                          : strength === 2
-                            ? "bg-yellow-500"
-                            : "bg-green-600"
-                        : "bg-gray-300"
+                      ? strength === 1
+                        ? "bg-red-600"
+                        : strength === 2
+                          ? "bg-yellow-500"
+                          : "bg-green-600"
+                      : "bg-gray-300"
                       }`}
                   />
                 ))}

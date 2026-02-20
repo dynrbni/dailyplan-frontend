@@ -2,7 +2,7 @@
 import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
-const API = "http://localhost:8080/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function LoginPage() {
       } else {
         // Handle error message - convert object to string if needed
         let errorMsg = "Login failed. Please check your credentials.";
-        
+
         if (typeof data.message === "string") {
           errorMsg = data.message;
         } else if (typeof data.message === "object") {
@@ -51,7 +51,7 @@ export default function LoginPage() {
             errorMsg = errors || errorMsg;
           }
         }
-        
+
         setError(errorMsg);
       }
     } catch (err) {
