@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import TaskCard from "@/components/TaskCard";
 import TaskModal from "@/components/TaskModal";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://api.dynrbni.biz.id";
+const API = process.env.NEXT_PUBLIC_API_URL || "https://api.dynrbni.biz.id/api";
 
 type Task = {
   id: string;

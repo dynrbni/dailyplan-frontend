@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://api.dynrbni.biz.id";
+const API = process.env.NEXT_PUBLIC_API_URL || "https://api.dynrbni.biz.id/api";
 
 type Task = {
     id: string;

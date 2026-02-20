@@ -2,7 +2,7 @@
 import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://api.dynrbni.biz.id";
+const API = process.env.NEXT_PUBLIC_API_URL || "https://api.dynrbni.biz.id/api";
 
 export default function LoginPage() {
   const router = useRouter();
