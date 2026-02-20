@@ -1,33 +1,132 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 
+const API = "http://localhost:8080/api";
+
+type Task = {
+    id: string;
+    title: string;
+    status: string;
+};
+
 export default function ProfilePage() {
     const router = useRouter();
 
+    const [userId, setUserId] = useState("");
     const [form, setForm] = useState({
-        name: "Jeongwoo",
-        email: "jeongjeong@email.com",
-        role: "Product Designer",
-        bio: "Passionate about building clean and useful interfaces.",
-        location: "Jakarta, Indonesia",
-        phone: "+62 812 3456 7890   ",
+        name: "",
+        email: "",
     });
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const [saved, setSaved] = useState(false);
+    const [saveError, setSaveError] = useState("");
     const [editing, setEditing] = useState(false);
     const [tempForm, setTempForm] = useState(form);
 
-    const handleEdit = () => { setTempForm(form); setEditing(true); };
-    const handleCancel = () => { setTempForm(form); setEditing(false); };
-    const handleSave = () => {
-        setForm(tempForm);
-        setEditing(false);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2500);
+    // Fetch user profile & tasks from DB
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.push("/login");
+            return;
+        }
+
+        // Load user from localStorage first (set by login)
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            try {
+                const parsed = JSON.parse(storedUser);
+                setUserId(parsed.id || "");
+                setForm({ name: parsed.name || "", email: parsed.email || "" });
+                setTempForm({ name: parsed.name || "", email: parsed.email || "" });
+
+                // Also fetch fresh data from API if we have the id
+                if (parsed.id) {
+                    fetch(`${API}/users/${parsed.id}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    })
+                        .then((res) => res.json())
+                        .then((data) => {
+                            const user = data?.data || data;
+                            if (user?.name) {
+                                setForm({ name: user.name, email: user.email });
+                                setTempForm({ name: user.name, email: user.email });
+                            }
+                        })
+                        .catch(() => {});
+                }
+            } catch {
+                // ignore parse errors
+            }
+        }
+
+        // Fetch tasks for stats
+        fetch(`${API}/tasks`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                const list = Array.isArray(data) ? data : data?.data || [];
+                setTasks(list);
+            })
+            .catch(() => {})
+            .finally(() => setLoading(false));
+    }, [router]);
+
+    const handleEdit = () => { setTempForm(form); setEditing(true); setSaveError(""); };
+    const handleCancel = () => { setTempForm(form); setEditing(false); setSaveError(""); };
+
+    const handleSave = async () => {
+        const token = localStorage.getItem("token");
+        if (!token || !userId) return;
+        setSaveError("");
+
+        try {
+            const res = await fetch(`${API}/users/${userId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    name: tempForm.name,
+                    email: tempForm.email,
+                }),
+            });
+            const data = await res.json();
+            if (data?.status === "error") {
+                setSaveError(data.message || "Failed to save");
+                return;
+            }
+            const updated = data?.data || tempForm;
+            const newForm = { name: updated.name, email: updated.email };
+            setForm(newForm);
+            setTempForm(newForm);
+            // Update localStorage so other pages stay in sync
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                const parsed = JSON.parse(storedUser);
+                localStorage.setItem("user", JSON.stringify({ ...parsed, name: newForm.name, email: newForm.email }));
+            }
+            setEditing(false);
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2500);
+        } catch (err) {
+            console.error("Failed to update profile:", err);
+            setSaveError("Failed to connect to server");
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        router.push("/login");
     };
 
     const fields = [
@@ -51,48 +150,22 @@ export default function ProfilePage() {
                 </svg>
             ),
         },
-        {
-            label: "Role",
-            key: "role",
-            type: "text",
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-            ),
-        },
-        {
-            label: "Phone",
-            key: "phone",
-            type: "text",
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-            ),
-        },
-        {
-            label: "Location",
-            key: "location",
-            type: "text",
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-            ),
-        },
     ];
 
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter((t) => t.status === "COMPLETED").length;
+    const pendingTasks = tasks.filter((t) => t.status === "PENDING" || t.status === "IN_PROGRESS").length;
+
     const stats = [
-        { label: "Total Tasks", value: "0", textColor: "text-blue-600", bgColor: "bg-blue-50" },
-        { label: "Completed", value: "0", textColor: "text-green-600", bgColor: "bg-green-50" },
-        { label: "Pending", value: "0", textColor: "text-amber-500", bgColor: "bg-amber-50" },
+        { label: "Total Tasks", value: String(totalTasks), textColor: "text-blue-600", bgColor: "bg-blue-50" },
+        { label: "Completed", value: String(completedTasks), textColor: "text-green-600", bgColor: "bg-green-50" },
+        { label: "Pending", value: String(pendingTasks), textColor: "text-amber-500", bgColor: "bg-amber-50" },
     ];
 
     return (
         <div className="flex min-h-screen bg-[#f8fafd]">
             {/* SIDEBAR */}
-            <Sidebar tasks={[]} />
+            <Sidebar tasks={tasks} />
 
             {/* MAIN */}
             <div className="flex flex-col flex-1 min-w-0">
@@ -158,6 +231,11 @@ export default function ProfilePage() {
                             Profile saved successfully!
                         </div>
                     )}
+                    {saveError && (
+                        <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+                            {saveError}
+                        </div>
+                    )}
 
                     {/* GRID */}
                     <div className="grid grid-cols-[220px_1fr] gap-5 items-start">
@@ -183,14 +261,8 @@ export default function ProfilePage() {
                                         <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white" />
                                     </div>
 
-                                    <p className="mt-2.5 text-sm font-semibold text-gray-800 tracking-tight">{form.name}</p>
-                                    <p className="text-[11px] text-gray-400 mt-0.5">{form.role}</p>
-                                    <p className="text-[11px] text-gray-400 mt-1 flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        {form.location}
-                                    </p>
+                                    <p className="mt-2.5 text-sm font-semibold text-gray-800 tracking-tight">{form.name || "—"}</p>
+                                    <p className="text-[11px] text-gray-400 mt-0.5">{form.email}</p>
                                 </div>
                             </div>
 
@@ -218,7 +290,7 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="p-3">
                                     <button
-                                        onClick={() => router.push("/")}
+                                        onClick={handleLogout}
                                         className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-red-200 text-red-400 text-xs hover:bg-red-50 transition-colors"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -264,25 +336,6 @@ export default function ProfilePage() {
                                             </div>
                                         </div>
                                     ))}
-                                </div>
-                            </div>
-
-                            {/* Bio */}
-                            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                                <div className="px-6 py-4 border-b border-gray-50">
-                                    <p className="text-[10px] uppercase tracking-[0.12em] text-gray-400 font-medium">Bio</p>
-                                </div>
-                                <div className="p-6">
-                                    <textarea
-                                        rows={4}
-                                        value={editing ? tempForm.bio : form.bio}
-                                        disabled={!editing}
-                                        onChange={(e) => setTempForm({ ...tempForm, bio: e.target.value })}
-                                        className={`w-full px-4 py-3 rounded-xl text-xs resize-none outline-none transition-all duration-150 ${editing
-                                                ? "border border-blue-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-gray-800"
-                                                : "border border-transparent bg-gray-50 text-gray-600 cursor-default"
-                                            }`}
-                                    />
                                 </div>
                             </div>
 
