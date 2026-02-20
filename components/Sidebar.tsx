@@ -18,7 +18,7 @@ export default function Sidebar({ tasks = [] }: { tasks: Task[] }) {
 
     const links = [
         {
-            href: "/",
+            href: "/dashboard",
             label: "Dashboard",
             icon: (
                 <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -50,7 +50,7 @@ export default function Sidebar({ tasks = [] }: { tasks: Task[] }) {
         <aside className="w-[240px] bg-white border-r border-gray-100 flex flex-col min-h-screen shrink-0">
             {/* Logo */}
             <div className="px-6 py-5 border-b border-gray-50">
-                <Link href="/" className="flex items-center gap-2.5">
+                <Link href="/dashboard" className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-md shadow-blue-200">
                         <div className="grid grid-cols-2 gap-[3px]">
                             <div className="w-[6px] h-[6px] bg-white rounded-[2px]" />

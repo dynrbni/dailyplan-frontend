@@ -31,7 +31,7 @@ export default function LoginPage() {
           localStorage.setItem("user", JSON.stringify(data.result.data));
         }
         setSuccess(true);
-        setTimeout(() => router.push("/"), 800);
+        setTimeout(() => router.push("/dashboard"), 800);
       } else {
         // Handle error message - convert object to string if needed
         let errorMsg = "Login failed. Please check your credentials.";

@@ -1,365 +1,229 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
-import Navbar from "@/components/Navbar";
-import TaskCard from "@/components/TaskCard";
-import TaskModal from "@/components/TaskModal";
+import Link from "next/link";
 
-const API = "http://localhost:8080/api";
-
-type Task = {
-  id: string;
-  title: string;
-  description?: string;
-  status: string;
-  priority?: string;
-  dueDate?: string;
-};
-
-export default function Home() {
+export default function LandingPage() {
   const router = useRouter();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editTask, setEditTask] = useState<Task | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Auth check
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    } else {
-      setAuthChecked(true);
-    }
-  }, [router]);
-
-  // Fetch tasks
-  useEffect(() => {
-    const fetchTasks = async () => {
-      const t = localStorage.getItem("token");
-      if (!t) return;
-      try {
-        const res = await fetch(`${API}/tasks`, {
-          headers: { Authorization: `Bearer ${t}` },
-        });
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setTasks(data);
-        } else if (data?.data && Array.isArray(data.data)) {
-          setTasks(data.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch tasks:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTasks();
+    if (token) setIsLoggedIn(true);
   }, []);
 
-  // Stats
-  const total = tasks.length;
-  const completed = tasks.filter((t) => t.status === "COMPLETED").length;
-  const pending = tasks.filter((t) => t.status === "PENDING").length;
-  const inProgress = tasks.filter((t) => t.status === "IN_PROGRESS").length;
-  const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-  // Recent tasks (last 6)
-  const recentTasks = [...tasks].reverse().slice(0, 6);
-
-  // Create / Update task
-  const saveTask = async (task: Task) => {
-    const t = localStorage.getItem("token");
-    if (!t) return;
-
-    try {
-      if (editTask) {
-        // Update
-        const res = await fetch(`${API}/tasks/${task.id}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${t}`,
-          },
-          body: JSON.stringify({
-            title: task.title,
-            description: task.description,
-            priority: task.priority,
-            dueDate: task.dueDate,
-          }),
-        });
-        const data = await res.json();
-        const updated = data?.data || task;
-        setTasks((prev) => prev.map((x) => (x.id === task.id ? updated : x)));
-      } else {
-        // Create
-        const res = await fetch(`${API}/tasks/create`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${t}`,
-          },
-          body: JSON.stringify({
-            title: task.title,
-            description: task.description,
-            priority: task.priority,
-            dueDate: task.dueDate,
-          }),
-        });
-        const data = await res.json();
-        const created = data?.data || task;
-        setTasks((prev) => [...prev, created]);
-      }
-    } catch (err) {
-      console.error("Failed to save task:", err);
-    }
-
-    setShowModal(false);
-    setEditTask(null);
-  };
-
-  // Toggle status
-  const toggleTask = async (id: string) => {
-    const t = localStorage.getItem("token");
-    if (!t) return;
-    const task = tasks.find((x) => x.id === id);
-    if (!task) return;
-
-    const newStatus = task.status === "COMPLETED" ? "PENDING" : "COMPLETED";
-    try {
-      await fetch(`${API}/tasks/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${t}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      setTasks((prev) =>
-        prev.map((x) => (x.id === id ? { ...x, status: newStatus } : x))
-      );
-    } catch (err) {
-      console.error("Failed to toggle task:", err);
-    }
-  };
-
-  // Delete task
-  const deleteTask = async (id: string) => {
-    const t = localStorage.getItem("token");
-    if (!t) return;
-    try {
-      await fetch(`${API}/tasks/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${t}` },
-      });
-      setTasks((prev) => prev.filter((x) => x.id !== id));
-    } catch (err) {
-      console.error("Failed to delete task:", err);
-    }
-  };
-
-  const stats = [
-    {
-      label: "Total Tasks",
-      value: total,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-      ),
-    },
-    {
-      label: "Completed",
-      value: completed,
-      color: "text-green-600",
-      bg: "bg-green-50",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-    },
-    {
-      label: "Pending",
-      value: pending,
-      color: "text-amber-500",
-      bg: "bg-amber-50",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-    },
-    {
-      label: "In Progress",
-      value: inProgress,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      ),
-    },
-  ];
-
   return (
-      authChecked ? (
-      <div className="flex min-h-screen bg-[#f8fafd]">
-        {/* SIDEBAR */}
-        <Sidebar tasks={tasks} />
-
-        {/* MAIN AREA */}
-        <div className="flex flex-col flex-1 min-w-0">
-          {/* NAVBAR */}
-          <Navbar />
-
-          {/* CONTENT */}
-          <main className="flex-1 px-8 py-7">
-            {/* PAGE HEADER */}
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.12em] text-blue-500 font-medium mb-0.5">
-                  Overview
-                </p>
-                <h2
-                  className="text-2xl tracking-tight text-gray-900 leading-tight font-semibold"
-                >
-                  Dashboard
-                </h2>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {new Date().toLocaleDateString("en-US", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </p>
+    <div className="min-h-screen bg-white">
+      {/* NAV */}
+      <nav className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+              <div className="grid grid-cols-2 gap-[2px]">
+                <div className="w-[5px] h-[5px] bg-white rounded-[1.5px]" />
+                <div className="w-[5px] h-[5px] bg-white rounded-[1.5px]" />
+                <div className="w-[5px] h-[5px] bg-white rounded-[1.5px]" />
+                <div className="w-[5px] h-[5px] bg-white rounded-[1.5px]" />
               </div>
+            </div>
+            <span className="text-lg font-bold text-gray-900 tracking-tight">
+              Daily<span className="text-blue-600">Plan</span>
+            </span>
+          </Link>
 
-              <button
-                onClick={() => {
-                  setEditTask(null);
-                  setShowModal(true);
-                }}
-                className="bg-gradient-to-r from-blue-600 to-blue-400 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-1.5 hover:opacity-90 hover:-translate-y-px transition-all shadow-md shadow-blue-200"
+          <div className="flex items-center gap-3">
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
               >
-                <span className="text-base leading-none">+</span>
-                Add New Task
-              </button>
-            </div>
-
-            {/* STATS GRID */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              {stats.map(({ label, value, color, bg, icon }) => (
-                <div
-                  key={label}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition"
                 >
-                  <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center ${color}`}>
-                    {icon}
-                  </div>
-                  <div>
-                    <p className="text-2xl font-semibold text-gray-800">{value}</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">{label}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* PROGRESS BAR */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-medium text-gray-700">Overall Progress</p>
-                <span className="text-sm font-semibold text-blue-600">{progress}%</span>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
-                <div
-                  className="h-2 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <p className="text-[11px] text-gray-400 mt-2">
-                {completed} of {total} tasks completed
-              </p>
-            </div>
-
-            {/* RECENT TASKS */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-gray-400 font-medium mb-0.5">
-                    Recent Activity
-                  </p>
-                  <h3
-                    className="text-lg text-gray-800 font-semibold"
-                  >
-                    Your Tasks
-                  </h3>
-                </div>
-                <a
-                  href="/tasks"
-                  className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors"
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
                 >
-                  View All →
-                </a>
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-xs font-medium mb-6">
+            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+            Simple task management for everyone
+          </div>
+
+          <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 tracking-tight leading-[1.1] mb-6">
+            Plan your day.
+            <br />
+            <span className="text-blue-600">Get things done.</span>
+          </h1>
+
+          <p className="text-lg text-gray-500 max-w-xl mx-auto leading-relaxed mb-10">
+            DailyPlan helps you organize tasks, track progress, and stay
+            productive. No clutter, no complexity — just focus.
+          </p>
+
+          <div className="flex items-center justify-center gap-4">
+            <Link
+              href={isLoggedIn ? "/dashboard" : "/register"}
+              className="px-7 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 text-sm"
+            >
+              {isLoggedIn ? "Open Dashboard" : "Start for Free"}
+            </Link>
+            <Link
+              href="#features"
+              className="px-7 py-3 border border-gray-200 text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition text-sm"
+            >
+              Learn More
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* PREVIEW */}
+      <section className="px-6 pb-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-[#f8fafd] rounded-2xl border border-gray-200 shadow-xl overflow-hidden p-1">
+            <div className="bg-white rounded-xl p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-3 h-3 rounded-full bg-red-400" />
+                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                <div className="w-3 h-3 rounded-full bg-green-400" />
+                <span className="ml-3 text-xs text-gray-400">DailyPlan — Dashboard</span>
               </div>
-
-              {loading ? (
-                <div className="flex items-center justify-center py-20">
-                  <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-                </div>
-              ) : recentTasks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 text-blue-300 text-2xl select-none">
-                    ✦
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {[
+                  { label: "Total Tasks", value: "12", color: "text-blue-600", bg: "bg-blue-50" },
+                  { label: "Completed", value: "8", color: "text-green-600", bg: "bg-green-50" },
+                  { label: "In Progress", value: "4", color: "text-amber-500", bg: "bg-amber-50" },
+                ].map(({ label, value, color, bg }) => (
+                  <div key={label} className="rounded-xl border border-gray-100 p-4 flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg ${bg} flex items-center justify-center ${color} text-sm font-bold`}>
+                      {value}
+                    </div>
+                    <span className="text-xs text-gray-500">{label}</span>
                   </div>
-                  <p
-                    className="text-xl text-gray-700 mb-1 font-medium"
-                  >
-                    No tasks yet
-                  </p>
-                  <p className="text-sm text-gray-400 max-w-xs leading-relaxed">
-                    Click &quot;Add New Task&quot; to start planning your day.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {recentTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onToggle={toggleTask}
-                      onDelete={deleteTask}
-                      onEdit={(t) => {
-                        setEditTask(t);
-                        setShowModal(true);
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
+                ))}
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-2 mb-2">
+                <div className="h-2 bg-blue-500 rounded-full" style={{ width: "67%" }} />
+              </div>
+              <p className="text-[11px] text-gray-400">8 of 12 tasks completed</p>
             </div>
-          </main>
+          </div>
         </div>
+      </section>
 
-        {/* MODAL */}
-        <TaskModal
-          show={showModal}
-          onClose={() => setShowModal(false)}
-          onSave={saveTask}
-          editTask={editTask}
-        />
-      </div>
-      ) : (
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafd]">
-          <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+      {/* FEATURES */}
+      <section id="features" className="px-6 py-20 bg-[#f8fafd]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs font-medium text-blue-600 uppercase tracking-widest mb-2">
+              Features
+            </p>
+            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
+              Everything you need to stay on track
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: "Task Management",
+                desc: "Create, edit, and organize tasks with priorities and due dates.",
+                icon: (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                ),
+              },
+              {
+                title: "Progress Tracking",
+                desc: "See your completion rate and stay motivated with visual progress.",
+                icon: (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                ),
+              },
+              {
+                title: "Priority System",
+                desc: "Set urgency levels to focus on what matters most, when it matters.",
+                icon: (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                ),
+              },
+            ].map(({ title, desc, icon }) => (
+              <div
+                key={title}
+                className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-md transition-shadow"
+              >
+                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+                  {icon}
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-1.5">{title}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      )
+      </section>
+
+      {/* CTA */}
+      <section className="px-6 py-20">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight mb-4">
+            Ready to get organized?
+          </h2>
+          <p className="text-gray-500 mb-8 max-w-md mx-auto">
+            Join DailyPlan and start managing your tasks the smarter way. Free to use, no credit card required.
+          </p>
+          <Link
+            href={isLoggedIn ? "/dashboard" : "/register"}
+            className="inline-flex px-8 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 text-sm"
+          >
+            {isLoggedIn ? "Go to Dashboard" : "Get Started — It's Free"}
+          </Link>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-gray-100 px-6 py-8">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center">
+              <div className="grid grid-cols-2 gap-[1.5px]">
+                <div className="w-[4px] h-[4px] bg-white rounded-[1px]" />
+                <div className="w-[4px] h-[4px] bg-white rounded-[1px]" />
+                <div className="w-[4px] h-[4px] bg-white rounded-[1px]" />
+                <div className="w-[4px] h-[4px] bg-white rounded-[1px]" />
+              </div>
+            </div>
+            <span className="text-sm font-semibold text-gray-700">DailyPlan</span>
+          </div>
+          <p className="text-xs text-gray-400">
+            &copy; {new Date().getFullYear()} DailyPlan. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
   );
 }
