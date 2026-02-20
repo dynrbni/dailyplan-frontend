@@ -1,374 +1,12 @@
 "use client";
 import React, { useState, FC, FormEvent, ChangeEvent } from "react";
 
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --blue-dark: #0A2463;
-    --blue-mid: #1E5FD9;
-    --blue-light: #4D90FE;
-    --white: #FFFFFF;
-    --gray-light: #F4F7FF;
-    --gray-border: #D6E0FF;
-    --gray-text: #6B7A99;
-    --success: #22C55E;
-  }
-
-  body { margin: 0; }
-
-  .page {
-    min-height: 100vh;
-    display: flex;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: var(--white);
-  }
-
-  /* ── Left: form ── */
-  .panel-left {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 60px;
-    background: var(--white);
-    overflow-y: auto;
-  }
-
-  .form-wrap { width: 100%; max-width: 420px; }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 36px;
-  }
-
-  .brand-icon {
-    width: 34px; height: 34px;
-    background: linear-gradient(135deg, var(--blue-mid), var(--blue-dark));
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .brand-name {
-    font-family: 'Sora', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--blue-dark);
-  }
-
-  .brand-name span { color: var(--blue-mid); }
-
-  .form-eyebrow {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--blue-mid);
-    margin-bottom: 8px;
-  }
-
-  .form-title {
-    font-family: 'Sora', sans-serif;
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--blue-dark);
-    letter-spacing: -0.5px;
-    margin-bottom: 6px;
-  }
-
-  .form-sub {
-    font-size: 14px;
-    color: var(--gray-text);
-    margin-bottom: 28px;
-  }
-
-  .field-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  .field { margin-bottom: 16px; }
-
-  .field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--blue-dark);
-    margin-bottom: 7px;
-  }
-
-  .field input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1.5px solid var(--gray-border);
-    border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 14px;
-    color: var(--blue-dark);
-    background: var(--white);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .field input:focus {
-    border-color: var(--blue-mid);
-    box-shadow: 0 0 0 3px rgba(30,95,217,0.1);
-  }
-
-  .field input::placeholder { color: #B0BCDA; }
-
-  .strength-bar {
-    margin-top: 6px;
-    display: flex;
-    gap: 4px;
-  }
-
-  .strength-seg {
-    flex: 1;
-    height: 3px;
-    border-radius: 100px;
-    background: var(--gray-border);
-    transition: background 0.3s;
-  }
-
-  .strength-seg.weak { background: #EF4444; }
-  .strength-seg.ok   { background: #F59E0B; }
-  .strength-seg.good { background: var(--success); }
-
-  .strength-label {
-    font-size: 11px;
-    margin-top: 4px;
-    color: var(--gray-text);
-  }
-
-  .checkbox-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  .checkbox-row input[type="checkbox"] {
-    margin-top: 2px;
-    width: 16px; height: 16px;
-    accent-color: var(--blue-mid);
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .checkbox-row label {
-    font-size: 13px;
-    color: var(--gray-text);
-    line-height: 1.5;
-    cursor: pointer;
-  }
-
-  .checkbox-row a {
-    color: var(--blue-mid);
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .checkbox-row a:hover { text-decoration: underline; }
-
-  .btn-primary {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--blue-mid), var(--blue-dark));
-    color: var(--white);
-    border: none;
-    border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-    box-shadow: 0 4px 16px rgba(30,95,217,0.3);
-  }
-
-  .btn-primary:hover {
-    opacity: 0.92;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(30,95,217,0.4);
-  }
-
-  .btn-primary:active { transform: translateY(0); }
-
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 20px 0;
-    font-size: 12px;
-    color: #B0BCDA;
-    font-weight: 500;
-  }
-
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--gray-border);
-  }
-
-  .btn-google {
-    width: 100%;
-    padding: 13px;
-    background: var(--white);
-    color: var(--blue-dark);
-    border: 1.5px solid var(--gray-border);
-    border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-  }
-
-  .btn-google:hover {
-    background: var(--gray-light);
-    border-color: var(--blue-light);
-    box-shadow: 0 2px 8px rgba(30,95,217,0.08);
-  }
-
-  .login-link {
-    text-align: center;
-    margin-top: 22px;
-    font-size: 14px;
-    color: var(--gray-text);
-  }
-
-  .login-link a {
-    color: var(--blue-mid);
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .login-link a:hover { text-decoration: underline; }
-
-  .success-box {
-    background: #F0FDF4;
-    border: 1.5px solid var(--success);
-    color: #166534;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 13px;
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
-  }
-
-  /* ── Right: illustration ── */
-  .panel-right {
-    flex: 0 0 44%;
-    background: linear-gradient(160deg, #0A2463 0%, #1E5FD9 55%, #60A5FA 100%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 60px 48px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .panel-right::before {
-    content: '';
-    position: absolute;
-    width: 350px; height: 350px;
-    border-radius: 50%;
-    border: 50px solid rgba(255,255,255,0.06);
-    top: -80px; right: -80px;
-  }
-
-  .panel-right::after {
-    content: '';
-    position: absolute;
-    width: 240px; height: 240px;
-    border-radius: 50%;
-    border: 35px solid rgba(255,255,255,0.07);
-    bottom: -40px; left: -40px;
-  }
-
-  .right-content { position: relative; z-index: 1; }
-
-  .right-title {
-    font-family: 'Sora', sans-serif;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--white);
-    line-height: 1.3;
-    margin-bottom: 16px;
-  }
-
-  .right-title span { color: #93C5FD; }
-
-  .right-desc {
-    font-size: 15px;
-    color: rgba(255,255,255,0.65);
-    line-height: 1.7;
-    font-weight: 300;
-    margin-bottom: 40px;
-    max-width: 300px;
-  }
-
-  .features { display: flex; flex-direction: column; gap: 16px; }
-
-  .feature-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .feature-icon {
-    width: 40px; height: 40px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.12);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-size: 18px;
-  }
-
-  .feature-text-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 2px;
-  }
-
-  .feature-text-sub {
-    font-size: 12px;
-    color: rgba(255,255,255,0.5);
-  }
-
-  @media (max-width: 900px) {
-    .panel-right { display: none; }
-    .panel-left { padding: 40px 24px; }
-    .field-row { grid-template-columns: 1fr; }
-  }
-`;
-
 interface RegisterForm {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
   confirm: string;
-}
-
-interface Feature {
-  icon: string;
-  title: string;
-  sub: string;
 }
 
 type StrengthLevel = 0 | 1 | 2 | 3;
@@ -389,28 +27,7 @@ function getStrength(pw: string): StrengthLevel {
   return 3;
 }
 
-const strengthLabels: Record<StrengthLevel, string> = {
-  0: "",
-  1: "Weak",
-  2: "Fair",
-  3: "Strong",
-};
-
-const strengthClasses: Record<StrengthLevel, string> = {
-  0: "",
-  1: "weak",
-  2: "ok",
-  3: "good",
-};
-
-const features: Feature[] = [
-  { icon: "📋", title: "Task Management", sub: "Organize & prioritize your tasks" },
-  { icon: "📅", title: "Integrated Calendar", sub: "Sync your daily schedule" },
-  { icon: "📊", title: "Productivity Reports", sub: "Track your progress every day" },
-  { icon: "🔔", title: "Smart Reminders", sub: "Never miss a task again" },
-];
-
-export default function RegisterPage(): React.ReactElement {
+export default function RegisterPage() {
   const [form, setForm] = useState<RegisterForm>({
     firstName: "",
     lastName: "",
@@ -418,187 +35,198 @@ export default function RegisterPage(): React.ReactElement {
     password: "",
     confirm: "",
   });
-  const [agree, setAgree] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
+
+  const [agree, setAgree] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const strength = getStrength(form.password);
 
-  const handleChange = (field: keyof RegisterForm) => (e: ChangeEvent<HTMLInputElement>): void => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
-  };
+  const handleChange =
+    (field: keyof RegisterForm) =>
+    (e: ChangeEvent<HTMLInputElement>) =>
+      setForm({ ...form, [field]: e.target.value });
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!agree) {
-      alert("Harap setujui syarat layanan.");
-      return;
-    }
-    if (form.password !== form.confirm) {
-      alert("Kata sandi tidak cocok.");
-      return;
-    }
+    if (!agree) return alert("Harap setujui syarat layanan.");
+    if (form.password !== form.confirm) return alert("Password tidak cocok.");
+
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
   };
 
   return (
-    <>
-      <style>{styles}</style>
-      <div className="page">
+    <div className="min-h-screen flex bg-gray-50 font-sans">
 
-        
-        <div className="panel-left">
-          <div className="form-wrap">
-            <div className="brand">
-              <div className="brand-icon">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <rect x="2" y="2" width="6" height="6" rx="1.5" fill="white"/>
-                  <rect x="10" y="2" width="6" height="6" rx="1.5" fill="white" opacity="0.6"/>
-                  <rect x="2" y="10" width="6" height="6" rx="1.5" fill="white" opacity="0.6"/>
-                  <rect x="10" y="10" width="6" height="6" rx="1.5" fill="white"/>
-                </svg>
+      {/* LEFT FORM */}
+      <div className="flex-1 flex items-center justify-center px-6 lg:px-20 py-14">
+        <div className="w-full max-w-md bg-white p-10 rounded-3xl shadow-xl">
+
+          {/* Brand */}
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center">
+              <div className="grid grid-cols-2 gap-1">
+                <div className="w-2 h-2 bg-white rounded-sm"></div>
+                <div className="w-2 h-2 bg-white rounded-sm"></div>
+                <div className="w-2 h-2 bg-white rounded-sm"></div>
+                <div className="w-2 h-2 bg-white rounded-sm"></div>
               </div>
-              <div className="brand-name">Daily<span>Plan</span></div>
+            </div>
+            <span className="text-xl font-bold text-gray-900">
+              Daily<span className="text-blue-600">Plan</span>
+            </span>
+          </div>
+
+          <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">
+            Get Started
+          </p>
+
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Create your account
+          </h1>
+
+          <p className="text-sm text-gray-700 mb-6">
+            Start organizing your day in a smarter way.
+          </p>
+
+          {success && (
+            <div className="mb-5 bg-green-100 border border-green-600 text-green-800 px-4 py-3 rounded-xl text-sm font-semibold">
+              ✓ Account created successfully!
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="First Name"
+                value={form.firstName}
+                onChange={handleChange("firstName")}
+                className="border border-gray-300 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={form.lastName}
+                onChange={handleChange("lastName")}
+                className="border border-gray-300 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
+                required
+              />
             </div>
 
-            <div className="form-eyebrow">Get Started</div>
-            <h1 className="form-title">Create a DailyPlan Account</h1>
-            <p className="form-sub">Free forever. No credit card required.</p>
+            <input
+              type="email"
+              placeholder="Email address"
+              value={form.email}
+              onChange={handleChange("email")}
+              className="w-full border border-gray-300 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
+              required
+            />
 
-            {success && (
-              <div className="success-box">✓ Account created successfully! Please sign in.</div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange("password")}
+              className="w-full border border-gray-300 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
+              required
+            />
+
+            {form.password && (
+              <div className="flex gap-2">
+                {[1,2,3].map(i => (
+                  <div
+                    key={i}
+                    className={`flex-1 h-1.5 rounded-full ${
+                      strength >= i
+                        ? strength === 1
+                          ? "bg-red-600"
+                          : strength === 2
+                          ? "bg-yellow-500"
+                          : "bg-green-600"
+                        : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
             )}
 
-            <form onSubmit={handleSubmit}>
-              <div className="field-row">
-                <div className="field">
-                  <label htmlFor="firstName">First Name</label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    placeholder="John"
-                    value={form.firstName}
-                    onChange={handleChange("firstName")}
-                    required
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="lastName">Last Name</label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    placeholder="Doe"
-                    value={form.lastName}
-                    onChange={handleChange("lastName")}
-                    required
-                  />
-                </div>
-              </div>
+            <input
+              type="password"
+              placeholder="Confirm password"
+              value={form.confirm}
+              onChange={handleChange("confirm")}
+              className="w-full border border-gray-300 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
+              required
+            />
 
-              <div className="field">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="name@email.com"
-                  value={form.email}
-                  onChange={handleChange("email")}
-                  required
-                />
-              </div>
+            <div className="flex items-start gap-2 text-sm text-gray-800">
+              <input
+                type="checkbox"
+                checked={agree}
+                onChange={(e) => setAgree(e.target.checked)}
+                className="mt-1 accent-blue-600"
+              />
+              <span>
+                I agree to the{" "}
+                <a href="#" className="text-blue-700 font-semibold">
+                  Terms
+                </a>{" "}
+                and{" "}
+                <a href="#" className="text-blue-700 font-semibold">
+                  Privacy Policy
+                </a>
+              </span>
+            </div>
 
-              <div className="field">
-                <label htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Min. 8 characters"
-                  value={form.password}
-                  onChange={handleChange("password")}
-                  required
-                />
-                {form.password.length > 0 && (
-                  <>
-                    <div className="strength-bar">
-                      {([1, 2, 3] as const).map((i) => (
-                        <div
-                          key={i}
-                          className={`strength-seg ${strength >= i ? strengthClasses[strength] : ""}`}
-                        />
-                      ))}
-                    </div>
-                    <div className="strength-label">
-                      Strength: {strengthLabels[strength]}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <div className="field">
-                <label htmlFor="confirm">Confirm Password</label>
-                <input
-                  id="confirm"
-                  type="password"
-                  placeholder="Repeat your password"
-                  value={form.confirm}
-                  onChange={handleChange("confirm")}
-                  required
-                />
-              </div>
-
-              <div className="checkbox-row">
-                <input
-                  type="checkbox"
-                  id="agree"
-                  checked={agree}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setAgree(e.target.checked)}
-                />
-                <label htmlFor="agree">
-                  I agree to the <a href="#">Terms of Service</a> and{" "}
-                  <a href="#">Privacy Policy</a> of DailyPlan.
-                </label>
-              </div>
-
-              <button className="btn-primary" type="submit">
-                Create Free Account
-              </button>
-            </form>
-
-            <div className="divider">or sign up with</div>
-            <button className="btn-google" type="button">
-              <GoogleIcon /> Google
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-900 text-white font-bold shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              Create Account
             </button>
+          </form>
 
-            <div className="login-link">
-              Already have an account? <a href="/login">Sign in here</a>
-            </div>
+          <div className="flex items-center gap-3 my-6 text-xs text-gray-600">
+            <div className="flex-1 h-px bg-gray-300"></div>
+            OR CONTINUE WITH
+            <div className="flex-1 h-px bg-gray-300"></div>
           </div>
-        </div>
 
-        <div className="panel-right">
-          <div className="right-content">
-            <h2 className="right-title">
-              One step toward<br />
-              <span>real productivity.</span>
-            </h2>
-            <p className="right-desc">
-              Join thousands of users who are already planning their days better with DailyPlan.
-            </p>
-            <div className="features">
-              {features.map((f: Feature, i: number) => (
-                <div className="feature-item" key={i}>
-                  <div className="feature-icon">{f.icon}</div>
-                  <div>
-                    <div className="feature-text-title">{f.title}</div>
-                    <div className="feature-text-sub">{f.sub}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          <button className="w-full border border-gray-300 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-gray-900 hover:bg-gray-100 transition">
+            <GoogleIcon /> Google
+          </button>
 
+          <p className="text-center text-sm text-gray-800 mt-6">
+            Already have an account?{" "}
+            <a href="/login" className="text-blue-700 font-semibold">
+              Sign in
+            </a>
+          </p>
+        </div>
       </div>
-    </>
+
+      {/* RIGHT SIDE */}
+      <div className="hidden lg:flex w-[45%] bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 text-white px-16 py-20 flex-col justify-center">
+        <h2 className="text-4xl font-bold mb-6">
+          Plan smarter. <br />
+          Achieve faster.
+        </h2>
+
+        <p className="text-base font-medium mb-10">
+          DailyPlan helps you stay organized, focused, and productive every single day.
+        </p>
+
+        <div className="space-y-6 text-lg font-semibold">
+          <div>✔ Task Management</div>
+          <div>✔ Integrated Calendar</div>
+          <div>✔ Productivity Reports</div>
+          <div>✔ Smart Reminders</div>
+        </div>
+      </div>
+
+    </div>
   );
 }
