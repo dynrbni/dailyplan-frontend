@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TaskCard from "../../components/TaskCard";
 import TaskModal from "../../components/TaskModal";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 
-// empty state
+type Task = {
+  id: number;
+  title: string;
+  description?: string;
+  status: "PENDING" | "COMPLETED";
+};
 function EmptyState({ tab }: { tab: "active" | "completed" }) {
 return (
 <div className="col-span-full flex flex-col items-center justify-center py-24 text-center">
