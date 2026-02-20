@@ -25,8 +25,7 @@ function EmptyState({ tab }: { tab: "active" | "completed" }) {
                 {tab === "active" ? "✦" : "◈"}
             </div>
             <p
-                className="text-xl text-gray-700 mb-1"
-                style={{ fontFamily: "'Instrument Serif', serif" }}
+                className="text-xl text-gray-700 mb-1 font-serif"
             >
                 {tab === "active" ? "No active tasks" : "Nothing completed yet"}
             </p>
@@ -177,13 +176,7 @@ export default function TasksPage() {
     };
 
     return (
-        <>
-            <style>{`@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');`}</style>
-
-            <div
-                className="flex min-h-screen bg-[#f8fafd]"
-                style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300 }}
-            >
+            <div className="flex min-h-screen bg-[#f8fafd]">
                 {/* SIDEBAR */}
                 <Sidebar tasks={tasks} />
 
@@ -202,8 +195,7 @@ export default function TasksPage() {
                             {/* Date */}
                             <button className="flex items-center gap-1.5 text-gray-700 hover:text-gray-900 transition">
                                 <span
-                                    className="text-base"
-                                    style={{ fontFamily: "'Instrument Serif', serif" }}
+                                    className="text-base font-serif"
                                 >
                                     {new Date().toLocaleDateString("en-US", {
                                         day: "numeric",
@@ -315,6 +307,5 @@ export default function TasksPage() {
                     editTask={editTask}
                 />
             </div>
-        </>
     );
 }

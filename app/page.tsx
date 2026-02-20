@@ -207,13 +207,7 @@ export default function Home() {
   ];
 
   return (
-    <>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');`}</style>
-
-      <div
-        className="flex min-h-screen bg-[#f8fafd]"
-        style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300 }}
-      >
+      <div className="flex min-h-screen bg-[#f8fafd]">
         {/* SIDEBAR */}
         <Sidebar tasks={tasks} />
 
@@ -231,8 +225,7 @@ export default function Home() {
                   Overview
                 </p>
                 <h2
-                  className="text-2xl tracking-tight text-gray-900 leading-tight"
-                  style={{ fontFamily: "'Instrument Serif', serif" }}
+                  className="text-2xl tracking-tight text-gray-900 leading-tight font-serif"
                 >
                   Dashboard
                 </h2>
@@ -301,8 +294,7 @@ export default function Home() {
                     Recent Activity
                   </p>
                   <h3
-                    className="text-lg text-gray-800"
-                    style={{ fontFamily: "'Instrument Serif', serif" }}
+                    className="text-lg text-gray-800 font-serif"
                   >
                     Your Tasks
                   </h3>
@@ -325,8 +317,7 @@ export default function Home() {
                     ✦
                   </div>
                   <p
-                    className="text-xl text-gray-700 mb-1"
-                    style={{ fontFamily: "'Instrument Serif', serif" }}
+                    className="text-xl text-gray-700 mb-1 font-serif"
                   >
                     No tasks yet
                   </p>
@@ -362,6 +353,5 @@ export default function Home() {
           editTask={editTask}
         />
       </div>
-    </>
   );
 }

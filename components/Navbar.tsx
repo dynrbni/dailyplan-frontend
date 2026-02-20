@@ -30,8 +30,7 @@ export default function Navbar() {
             {/* Left — Greeting */}
             <div>
                 <p
-                    className="text-base text-gray-800"
-                    style={{ fontFamily: "'Instrument Serif', serif" }}
+                    className="text-base text-gray-800 font-serif"
                 >
                     Hello, <span className="font-semibold">{userName}</span> 👋
                 </p>
