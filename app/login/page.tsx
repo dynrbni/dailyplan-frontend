@@ -1,14 +1,64 @@
 "use client";
 import React, { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+
+const API = "http://localhost:8080/api";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 2500);
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+
+      const data = await res.json();
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        if (data.result?.data) {
+          localStorage.setItem("user", JSON.stringify(data.result.data));
+        }
+        setSuccess(true);
+        setTimeout(() => router.push("/"), 800);
+      } else {
+        // Handle error message - convert object to string if needed
+        let errorMsg = "Login failed. Please check your credentials.";
+        
+        if (typeof data.message === "string") {
+          errorMsg = data.message;
+        } else if (typeof data.message === "object") {
+          // Handle field errors from backend
+          const fieldErrors = data.message?.fieldErrors;
+          if (fieldErrors) {
+            const errors = Object.entries(fieldErrors)
+              .map(([field, msgs]: [string, any]) => {
+                const messages = Array.isArray(msgs) ? msgs.join(", ") : msgs;
+                return `${field}: ${messages}`;
+              })
+              .join("; ");
+            errorMsg = errors || errorMsg;
+          }
+        }
+        
+        setError(errorMsg);
+      }
+    } catch (err) {
+      setError("Cannot connect to server. Make sure the backend is running.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,6 +142,12 @@ export default function LoginPage() {
             </div>
           )}
 
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-300 text-red-700 rounded-xl px-4 py-3 text-sm font-medium">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
 
             <div>
@@ -134,9 +190,10 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-700 to-blue-900 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-60"
             >
-              Sign In
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
@@ -151,7 +208,7 @@ export default function LoginPage() {
           </button>
 
           <p className="text-center text-sm text-slate-700 mt-8">
-            Don’t have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a href="/register" className="text-blue-700 font-semibold hover:underline">
               Create one
             </a>

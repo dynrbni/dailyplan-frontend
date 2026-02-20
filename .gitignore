@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# executables
+*.exe
+
+# lock files (optional - uncomment if you want to ignore)
+# bun.lock
