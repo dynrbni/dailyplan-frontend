@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Task } from "../types/task";
+
+type Task = {
+  id: number;
+  title: string;
+  description?: string;
+  status: "PENDING" | "COMPLETED";
+};
 
 type Props = {
   tasks: Task[];
