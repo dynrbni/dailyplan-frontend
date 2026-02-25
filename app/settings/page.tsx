@@ -19,7 +19,12 @@ export default function SettingsPage() {
     type: "success",
   });
 
+  const closeModal = () => {
+    setModal({ ...modal, show: false });
+  };
+
   const handleChangePassword = () => {
+    // Validasi kosong
     if (!currentPassword || !newPassword || !confirmPassword) {
       return setModal({
         show: true,
@@ -28,6 +33,16 @@ export default function SettingsPage() {
       });
     }
 
+    // Validasi panjang password
+    if (newPassword.length < 1) {
+      return setModal({
+        show: true,
+        message: "Harus diisi",
+        type: "error",
+      });
+    }
+
+    // Validasi confirm password
     if (newPassword !== confirmPassword) {
       return setModal({
         show: true,
@@ -36,17 +51,10 @@ export default function SettingsPage() {
       });
     }
 
-    if (newPassword.length < 1) {
-      return setModal({
-        show: true,
-        message: "Password minimal 6 karakter!",
-        type: "error",
-      });
-    }
-
+    // Simulasi berhasil
     setModal({
       show: true,
-      message: "Password berhasil diganti! ",
+      message: "Password berhasil diganti!",
       type: "success",
     });
 
@@ -64,7 +72,7 @@ export default function SettingsPage() {
 
         <main className="flex-1 px-8 py-7">
           <div className="mb-6">
-            <p className="text-[10px] uppercase tracking-[0.12em] text-blue-500 font-medium mb-1">
+            <p className="text-xs uppercase tracking-wider text-blue-500 font-medium mb-1">
               Settings
             </p>
             <h2 className="text-2xl font-semibold text-gray-900">
@@ -87,7 +95,9 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">New Password</label>
+                <label className="text-sm text-gray-600">
+                  New Password
+                </label>
                 <input
                   type="password"
                   value={newPassword}
@@ -110,7 +120,7 @@ export default function SettingsPage() {
 
               <button
                 onClick={handleChangePassword}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-all shadow-md shadow-blue-200"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition"
               >
                 Save Changes
               </button>
@@ -122,9 +132,9 @@ export default function SettingsPage() {
       {/* MODAL */}
       {modal.show && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-[320px] text-center animate-scaleIn">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-[340px] text-center">
             <p
-              className={`text-lg font-semibold mb-4 ${
+              className={`text-lg font-semibold mb-5 ${
                 modal.type === "success"
                   ? "text-green-600"
                   : "text-red-500"
@@ -134,7 +144,7 @@ export default function SettingsPage() {
             </p>
 
             <button
-              onClick={() => setModal({ ...modal, show: false })}
+              onClick={closeModal}
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
             >
               OK
